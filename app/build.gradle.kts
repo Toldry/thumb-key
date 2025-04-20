@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.devtools.ksp")
+    // kotlin("jvm") // version "2.1.20"
+    kotlin("plugin.serialization") version "2.1.20"
 }
 
 android {
@@ -129,4 +131,7 @@ dependencies {
 
     // App compat
     implementation("androidx.appcompat:appcompat:1.7.0")
+
+    // JSON serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }

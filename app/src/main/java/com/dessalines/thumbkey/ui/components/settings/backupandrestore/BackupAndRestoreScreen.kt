@@ -249,6 +249,7 @@ private fun resetAppSettingsToDefault(appSettingsViewModel: AppSettingsViewModel
             clockwiseDragAction = DEFAULT_CLOCKWISE_DRAG_ACTION,
             counterclockwiseDragAction = DEFAULT_COUNTERCLOCKWISE_DRAG_ACTION,
             ghostKeysEnabled = DEFAULT_GHOST_KEYS_ENABLED,
+            keyModifications = "",
         ),
     )
 }
