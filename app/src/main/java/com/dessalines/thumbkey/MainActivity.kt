@@ -3,6 +3,7 @@ package com.dessalines.thumbkey
 import android.app.Application
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -26,11 +27,18 @@ import com.dessalines.thumbkey.ui.components.settings.SettingsScreen
 import com.dessalines.thumbkey.ui.components.settings.about.AboutScreen
 import com.dessalines.thumbkey.ui.components.settings.backupandrestore.BackupAndRestoreScreen
 import com.dessalines.thumbkey.ui.components.settings.behavior.BehaviorScreen
+import com.dessalines.thumbkey.ui.components.settings.modifykeys.ModifyKeysScreen
 import com.dessalines.thumbkey.ui.components.settings.lookandfeel.LookAndFeelScreen
 import com.dessalines.thumbkey.ui.components.setup.SetupScreen
 import com.dessalines.thumbkey.ui.theme.ThumbkeyTheme
 import com.dessalines.thumbkey.utils.ANIMATION_SPEED
+import com.dessalines.thumbkey.utils.KeyDisplay.TextDisplay
+import com.dessalines.thumbkey.utils.KeyboardDefinition
+import com.dessalines.thumbkey.utils.KeyboardLayout
+import com.dessalines.thumbkey.utils.TAG
+import com.dessalines.thumbkey.utils.applyModificationsToKeyboardLayouts
 import com.dessalines.thumbkey.utils.getImeNames
+import com.dessalines.thumbkey.utils.restoreUnmodified
 import splitties.systemservices.inputMethodManager
 
 class ThumbkeyApplication : Application() {
@@ -44,6 +52,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "alon23232")
+        Log.d(TAG, (KeyboardLayout.HEMessagEase.keyboardDefinition.modes.main.arr[0][0].center.display as TextDisplay).text)
+        (KeyboardLayout.HEMessagEase.keyboardDefinition.modes.main.arr[0][0].center.display as TextDisplay).text ="א"
+        Log.d(TAG, (KeyboardLayout.HEMessagEase.keyboardDefinition.modes.main.arr[0][0].center.display as TextDisplay).text)
+        restoreUnmodified()
+        Log.d(TAG, (KeyboardLayout.HEMessagEase.keyboardDefinition.modes.main.arr[0][0].center.display as TextDisplay).text)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
@@ -72,6 +86,8 @@ class MainActivity : AppCompatActivity() {
                     },
                 )
             }
+
+            applyModificationsToKeyboardLayouts(settings)
 
             ThumbkeyTheme(
                 settings = settings,
@@ -135,6 +151,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     composable(route = "behavior") {
                         BehaviorScreen(
+                            navController = navController,
+                            appSettingsViewModel = appSettingsViewModel,
+                        )
+                    }
+                    composable(route = "modifyKeys") {
+                        ModifyKeysScreen(
                             navController = navController,
                             appSettingsViewModel = appSettingsViewModel,
                         )

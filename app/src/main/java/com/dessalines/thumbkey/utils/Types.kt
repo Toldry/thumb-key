@@ -4,7 +4,10 @@ import android.view.KeyEvent
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
+import androidx.room.Ignore
 import com.dessalines.thumbkey.R
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 data class KeyboardDefinitionModes(
     val main: KeyboardC,
@@ -42,19 +45,19 @@ data class KeyboardC(
 )
 
 data class KeyItemC(
-    val center: KeyC,
-    val left: KeyC? = null,
-    val topLeft: KeyC? = null,
-    val top: KeyC? = null,
-    val topRight: KeyC? = null,
-    val right: KeyC? = null,
-    val bottomRight: KeyC? = null,
-    val bottom: KeyC? = null,
-    val bottomLeft: KeyC? = null,
+    var center: KeyC,
+    var left: KeyC? = null,
+    var topLeft: KeyC? = null,
+    var top: KeyC? = null,
+    var topRight: KeyC? = null,
+    var right: KeyC? = null,
+    var bottomRight: KeyC? = null,
+    var bottom: KeyC? = null,
+    var bottomLeft: KeyC? = null,
     val nextTapActions: List<KeyAction>? = null,
     val widthMultiplier: Int = 1,
-    val backgroundColor: ColorVariant = ColorVariant.SURFACE,
-    val swipeType: SwipeNWay = SwipeNWay.EIGHT_WAY,
+    var backgroundColor: ColorVariant = ColorVariant.SURFACE,
+    var swipeType: SwipeNWay = SwipeNWay.EIGHT_WAY,
     val slideType: SlideType = SlideType.NONE,
     val longPress: KeyAction? = null,
 ) {
@@ -73,7 +76,7 @@ data class KeyItemC(
 }
 
 data class KeyC(
-    val action: KeyAction,
+    var action: KeyAction,
     val swipeReturnAction: KeyAction? = null,
     val display: KeyDisplay? =
         when (action) {
@@ -81,7 +84,7 @@ data class KeyC(
             else -> null
         },
     val capsModeDisplay: KeyDisplay? = null,
-    val size: FontSizeVariant = FontSizeVariant.SMALL,
+    var size: FontSizeVariant = FontSizeVariant.SMALL,
     val color: ColorVariant =
         when (size) {
             FontSizeVariant.LARGE -> ColorVariant.PRIMARY
@@ -113,7 +116,7 @@ data class KeyC(
 
 sealed class KeyDisplay {
     class TextDisplay(
-        val text: String,
+        var text: String,
         val fontFamily: FontFamily? = null,
     ) : KeyDisplay()
 

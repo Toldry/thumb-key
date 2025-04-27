@@ -70,6 +70,7 @@ import com.dessalines.thumbkey.utils.KeyboardLayout
 import com.dessalines.thumbkey.utils.KeyboardMode
 import com.dessalines.thumbkey.utils.KeyboardPosition
 import com.dessalines.thumbkey.utils.TAG
+import com.dessalines.thumbkey.utils.applyModificationsToKeyboardLayouts
 import com.dessalines.thumbkey.utils.getKeyboardMode
 import com.dessalines.thumbkey.utils.keyboardPositionToAlignment
 import com.dessalines.thumbkey.utils.toBool
@@ -83,11 +84,45 @@ fun KeyboardScreen(
 ) {
     val ctx = LocalContext.current as IMEService
 
-    val keyboardDefinition =
+//    applyModificationsToKeyboardLayouts(settings)
+
+    var keyboardDefinition =
         KeyboardLayout.entries.sortedBy { it.ordinal }[
             settings?.keyboardLayout
                 ?: DEFAULT_KEYBOARD_LAYOUT,
         ].keyboardDefinition
+
+    Log.d(TAG, "Entered keyboard layout: ${keyboardDefinition.title}")
+//    if (settings?.keyboardLayout == KeyboardLayout.HEMessagEase.ordinal) {
+//        Log.d(TAG, "Entered modification clause: ${keyboardDefinition.title}")
+//        val rowIndex = 1
+//        val colIndex = 1
+//        val newValue = "∞"
+//        val modified = keyboardDefinition.modes.main.copy(arr =
+//            keyboardDefinition.modes.main.arr.mapIndexed { i, row ->
+//                if (i == rowIndex) {
+//                    row.mapIndexed { j, value ->
+//                        if (j == colIndex) {
+//                            value.copy(center =
+//                                value.center.copy(display =
+//                                    TextDisplay(text = newValue,
+//                                        fontFamily = (value.center.display as TextDisplay).fontFamily,
+//                                    ),
+//                                    action = KeyAction.CommitText(newValue),
+//                                ))
+//                        }
+//                        else value
+//                    }
+//                } else {
+//                    row.toList()
+//                }
+//            })
+//        val modifiedKeyboardDefinition = keyboardDefinition.copy(modes =
+//            keyboardDefinition.modes.copy(main =
+//                modified, shifted = modified))
+//        keyboardDefinition = modifiedKeyboardDefinition
+//    }
+
 
     var mode by remember {
         val startMode =

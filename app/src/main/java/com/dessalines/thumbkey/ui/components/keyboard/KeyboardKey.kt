@@ -1,6 +1,7 @@
 package com.dessalines.thumbkey.ui.components.keyboard
 import android.content.Context
 import android.media.AudioManager
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -62,6 +63,7 @@ import com.dessalines.thumbkey.utils.Selection
 import com.dessalines.thumbkey.utils.SlideType
 import com.dessalines.thumbkey.utils.SwipeDirection
 import com.dessalines.thumbkey.utils.SwipeNWay
+import com.dessalines.thumbkey.utils.TAG
 import com.dessalines.thumbkey.utils.buildTapActions
 import com.dessalines.thumbkey.utils.circularDirection
 import com.dessalines.thumbkey.utils.colorVariantToColor
@@ -864,6 +866,9 @@ fun KeyText(
                 }
             if (!hideKey) {
                 val spSize = fontSize.toPx.pxToSp
+                if (display.text == "י" || display.text == "∞") {
+                    Log.d(TAG, "Drawing ${display.text}")
+                }
                 Text(
                     text = display.text,
                     fontWeight = FontWeight.Bold,
