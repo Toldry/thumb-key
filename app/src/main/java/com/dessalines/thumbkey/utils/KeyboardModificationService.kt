@@ -2,6 +2,7 @@ package com.dessalines.thumbkey.utils
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import com.charleskorn.kaml.Yaml
 import com.dessalines.thumbkey.db.AppSettings
 import com.dessalines.thumbkey.utils.KeyAction.CommitText
 import com.dessalines.thumbkey.utils.KeyAction.Noop
@@ -9,64 +10,41 @@ import com.dessalines.thumbkey.utils.KeyDisplay.TextDisplay
 import com.dessalines.thumbkey.utils.KeyboardLayout.Companion.restoreUnmodifiedKeyboardDefinitions
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 
 fun applyKeyModifications(
     settings: AppSettings?,
     keyModificationsError: MutableState<String?>? = null,
 ) {
-    Log.d(TAG, "applying key modifications")
     try {
         applyKeyModificationsInternal(settings)
         keyModificationsError?.value = null
     } catch (e: Exception) {
-        keyModificationsError?.value = simplifyErrorMessage(e)
-    }
-}
-
-fun simplifyErrorMessage(e: Exception): String {
-    /**
-     * This regex is used to extract the relevant parts of the error message.
-     * Here is an example error message that with the superfluous parts:
-     *
-     """Encountered an unknown key 'bottomLeftt' at offset 746 at path: ${'$'}['ESCAMessagEase'].main.key2_2
-Use 'ignoreUnknownKeys = true' in 'Json {}' builder or '@JsonIgnoreUnknownKeys' annotation to ignore unknown keys.
-JSON input: ..... {"remove": "true"},
-     "bottomLeftt": {"remove": "true....."""
-     */
-    val matchResult =
-        Regex(
-            """^(Encountered an unknown key [\s\S]*)\n(Use 'ignoreUnknownKeys[\s\S]*)\n(JSON input: [\s\S]*)$""",
-            RegexOption.MULTILINE,
-        ).find(e.message.toString())
-    return if (matchResult == null) {
-        e.message ?: e.stackTraceToString()
-    } else {
-        "${matchResult.groups[1]!!.value}\n${matchResult.groups[3]!!.value}"
+        keyModificationsError?.value = e.message ?: e.stackTraceToString()
     }
 }
 
 internal var changesPreviouslyApplied = false
+internal var previousKeyModificationsHash: Int? = null
 
 @OptIn(ExperimentalSerializationApi::class)
 internal fun applyKeyModificationsInternal(settings: AppSettings?) {
+    if (settings == null || settings.keyModifications.hashCode() == previousKeyModificationsHash) {
+        return
+    }
+
     if (changesPreviouslyApplied) {
         restoreUnmodifiedKeyboardDefinitions()
         changesPreviouslyApplied = false
     }
 
-    if (settings == null || settings.keyModifications.isEmpty()) {
-        return
-    }
+    previousKeyModificationsHash = settings.keyModifications.hashCode()
 
-    val json =
-        Json {
-            ignoreUnknownKeys = false
-            allowTrailingComma = true
-            allowComments = true
-        }
-    var keyModifications: Map<String, KeyboardDefinitionModesSerializable> =
-        json.decodeFromString(settings.keyModifications)
+    if (settings.keyModifications.isEmpty()) return
+
+    var serializer = MapSerializer(String.serializer(), KeyboardDefinitionModesSerializable.serializer())
+    val keyModifications = Yaml.default.decodeFromString(serializer, settings.keyModifications)
 
     val layouts = keyboardLayoutsSetFromDbIndexString(settings.keyboardLayouts).toList()
     for (layout in layouts) {
@@ -81,7 +59,9 @@ internal fun applyKeyModificationsInternal(settings: AppSettings?) {
         applyToKeyboardC(layout.keyboardDefinition.modes.numeric, modifications.numeric)
         applyToKeyboardC(layout.keyboardDefinition.modes.ctrled, modifications.ctrled)
         applyToKeyboardC(layout.keyboardDefinition.modes.alted, modifications.alted)
+
         changesPreviouslyApplied = true
+        Log.d(TAG, "key modifications applied to ${layout.name}")
     }
 }
 
@@ -98,8 +78,6 @@ internal fun applyToKeyboardC(
             val keyItemCSerializable = property?.call(keyboardCSerializable) as? KeyItemCSerializable
 
             keyItemCSerializable?.let {
-                keyItemC.swipeType = it.swipeType ?: keyItemC.swipeType
-
                 keyItemC.topLeft = applyToKeyItemC(keyItemC.topLeft, it.topLeft)
                 keyItemC.top = applyToKeyItemC(keyItemC.top, it.top)
                 keyItemC.topRight = applyToKeyItemC(keyItemC.topRight, it.topRight)
@@ -109,6 +87,11 @@ internal fun applyToKeyboardC(
                 keyItemC.bottomLeft = applyToKeyItemC(keyItemC.bottomLeft, it.bottomLeft)
                 keyItemC.bottom = applyToKeyItemC(keyItemC.bottom, it.bottom)
                 keyItemC.bottomRight = applyToKeyItemC(keyItemC.bottomRight, it.bottomRight)
+
+                keyItemC.widthMultiplier = it.widthMultiplier ?: keyItemC.widthMultiplier
+                keyItemC.backgroundColor = it.backgroundColor ?: keyItemC.backgroundColor
+                keyItemC.swipeType = it.swipeType ?: keyItemC.swipeType
+                keyItemC.slideType = it.slideType ?: keyItemC.slideType
             }
         }
     }
@@ -129,8 +112,8 @@ internal fun applyToKeyItemC(
     if (keyC == null) {
         returnValue =
             KeyC(
-                display = TextDisplay(keyCSerializable.text ?: ""),
                 action = CommitText(keyCSerializable.text ?: ""),
+                display = TextDisplay(keyCSerializable.text ?: ""),
             )
     } else if (keyCSerializable.text != null && returnValue.display is TextDisplay) {
         returnValue.display.text = keyCSerializable.text
@@ -139,6 +122,10 @@ internal fun applyToKeyItemC(
     if (keyCSerializable.size != null) {
         returnValue.size = keyCSerializable.size
     }
+
+    returnValue.size = keyCSerializable.size ?: returnValue.size
+    returnValue.color = keyCSerializable.color ?: returnValue.color
+
     return returnValue
 }
 
@@ -183,12 +170,18 @@ data class KeyItemCSerializable(
     val bottomLeft: KeyCSerializable? = null,
     val bottom: KeyCSerializable? = null,
     val bottomRight: KeyCSerializable? = null,
-    val swipeType: SwipeNWay? = null,
+
+    var widthMultiplier: Int? = null,
+    var backgroundColor: ColorVariant? = null,
+    var swipeType: SwipeNWay? = null,
+    var slideType: SlideType? = null,
 )
 
 @Serializable
 data class KeyCSerializable(
     val text: String? = null,
+    val displayText: String? = null,
     val size: FontSizeVariant? = null,
+    val color: ColorVariant? = null,
     val remove: Boolean = false,
 )

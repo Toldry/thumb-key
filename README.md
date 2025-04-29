@@ -146,21 +146,15 @@ Enabling `Ghost keys` in keyboard settings will enable swiping hidden symbol key
 - For those use to tapping on the hand key to hide the MessagEase Keyboard and make more screen real estate available, this can be done by using the Android back key or on Android 10 and higher using the guesture navigation for back.
 - 
 ### Modify keys
-Keys are modified using JSON objects. It is recommended to copy one of the examples below and use a [JSON editor](https://jsoneditoronline.org/) to modify it to your needs. 
+Keys are modified using YAML objects. It is recommended to copy one of the examples below and use an IDE or [YAML editor](https://onlineyamltools.com/edit-yaml) to modify it to your needs. 
 
 #### Example 1
-```json
-{
-  "ENThumbKey": {
-    "main": {
-      "key1_0": {
-        "center": {
-          "text": "ñ"
-        }
-      }
-    }
-  }
-}
+```yaml
+ENThumbKey:
+  main:
+    key1_0:
+      center:
+        text: ñ
 ```
 
 ![](fastlane/metadata/android/en-US/images/userGuideImages/modify_keys_example_1.png)
@@ -187,39 +181,34 @@ This JSON string modifies the key in the second row, first column, center letter
 - `text` specifies the text of the key
 
 #### Example 2
-```json
-{
-  "ENThumbKey": {
-    "main": {
-      "key0_0": {
-        "right"   : {"text": "ê"},
-        "topRight": {"text": "è"},
-        "top"     : {"text": "ę"}
-      }
-    },
-    "shifted": {
-      "key0_0": {
-        "right"   : {"text": "Ê"},
-        "topRight": {"text": "È"},
-        "top"     : {"text": "Ę"}
-      }
-    }
-  },
-  "ESCAMessagEase": {
-    "main": {
-      "key0_0": { "bottom": {"text": "( ͡° ͜ʖ ͡°)", "size": "SMALLEST"} },
-      "key0_1": { "bottomLeft": {"text": "\ud808\uddeb", "size": "SMALL"} },
-      "key2_2": {
-        "swipeType": "FOUR_WAY_CROSS",
-        "center": {"text": "𓀒", "size": "LARGE"},
-        "topLeft": {"remove": "true"},
-        "topRight": {"remove": "true"},
-        "bottomRight": {"remove": "true"},
-        "bottomLeft": {"remove": "true"}
-      }
-    }
-  }
-}
+```yaml
+ENThumbKey:
+  main:
+    key0_0:
+      right: { text: ê }
+      topRight: {text: è}
+      top: {text: ę}
+  shifted:
+    key0_0:
+      right: {text: Ê}
+      topRight: {text: È}
+      top: {text: Ę}
+
+ESCAMessagEase:
+  main:
+    key0_0:
+      bottom: {text: "( ͡° ͜ʖ ͡°)", size: SMALLEST}
+    key0_1:
+      # Unicode literals can be used. 
+      # \U000121EB is the code for the character 𒇫
+      bottomLeft: {text: "\U000121EB", size: SMALL}
+    key2_2:
+      swipeType: FOUR_WAY_CROSS
+      center: {text: '𓀒', size: LARGE}
+      topLeft: {remove: true}
+      topRight: {remove: true}
+      bottomRight: {remove: true}
+      bottomLeft: {remove: true}
 ```
 ![](fastlane/metadata/android/en-US/images/userGuideImages/modify_keys_example_2.png)
 - Two keyboards are modified: `ENThumbKey (english thumbkey)` and `ESCAMessagEase (español català messagease)`.

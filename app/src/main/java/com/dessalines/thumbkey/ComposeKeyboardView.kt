@@ -20,22 +20,21 @@ import com.dessalines.thumbkey.utils.TAG
 import com.dessalines.thumbkey.utils.applyKeyModifications
 import com.dessalines.thumbkey.utils.keyboardLayoutsSetFromDbIndexString
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 @SuppressLint("ViewConstructor")
 class ComposeKeyboardView(
     context: Context,
     private val settingsRepo: AppSettingsRepository,
 ) : AbstractComposeView(context) {
-    init {
-        Log.d(TAG, "ComposeKeyboardView init")
-        applyKeyModifications(settingsRepo.appSettings.value)
-    }
 
     @Composable
     override fun Content() {
         val settingsState = settingsRepo.appSettings.observeAsState()
         val settings by settingsState
         val ctx = context as IMEService
+
+        applyKeyModifications(settings)
 
         ThumbkeyTheme(
             settings = settings,

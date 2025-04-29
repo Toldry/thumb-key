@@ -118,7 +118,7 @@ fun ModifyKeysScreen(
                         placeholder = {
                             Text(
                                 stringResource(
-                                    R.string.key_modification_json_placeholder,
+                                    R.string.key_modification_yaml_placeholder,
                                 ),
                             )
                         },
