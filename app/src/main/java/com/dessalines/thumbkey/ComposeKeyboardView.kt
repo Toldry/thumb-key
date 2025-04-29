@@ -2,6 +2,7 @@ package com.dessalines.thumbkey
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,6 +16,8 @@ import com.dessalines.thumbkey.db.AppSettingsRepository
 import com.dessalines.thumbkey.ui.components.keyboard.KeyboardScreen
 import com.dessalines.thumbkey.ui.theme.ThumbkeyTheme
 import com.dessalines.thumbkey.utils.KeyboardPosition
+import com.dessalines.thumbkey.utils.TAG
+import com.dessalines.thumbkey.utils.applyKeyModifications
 import com.dessalines.thumbkey.utils.keyboardLayoutsSetFromDbIndexString
 import kotlinx.coroutines.launch
 
@@ -23,6 +26,11 @@ class ComposeKeyboardView(
     context: Context,
     private val settingsRepo: AppSettingsRepository,
 ) : AbstractComposeView(context) {
+    init {
+        Log.d(TAG, "ComposeKeyboardView init")
+        applyKeyModifications(settingsRepo.appSettings.value)
+    }
+
     @Composable
     override fun Content() {
         val settingsState = settingsRepo.appSettings.observeAsState()

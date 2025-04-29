@@ -83,7 +83,7 @@ fun KeyboardScreen(
 ) {
     val ctx = LocalContext.current as IMEService
 
-    val keyboardDefinition =
+    var keyboardDefinition =
         KeyboardLayout.entries.sortedBy { it.ordinal }[
             settings?.keyboardLayout
                 ?: DEFAULT_KEYBOARD_LAYOUT,
